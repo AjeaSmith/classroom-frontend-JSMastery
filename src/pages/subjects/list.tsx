@@ -36,7 +36,7 @@ const SubjectsList = () => {
 	const searchfilters = searchQuery
 		? [
 				{
-					field: "subject",
+					field: "name",
 					operator: "contains" as const,
 					value: searchQuery,
 				},
