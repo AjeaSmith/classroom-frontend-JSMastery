@@ -53,8 +53,8 @@ const SubjectsList = () => {
 					cell: ({ getValue }) => <Badge>{getValue<string>()}</Badge>,
 				},
 				{
-					id: "subject",
-					accessorKey: "subject",
+					id: "name",
+					accessorKey: "name",
 					size: 200,
 					header: () => <p className="column-title">Subject</p>,
 					cell: ({ getValue }) => (

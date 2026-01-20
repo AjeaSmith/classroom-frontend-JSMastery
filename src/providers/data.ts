@@ -9,7 +9,7 @@ import {
 const subjects: Subject[] = [
 	{
 		id: 1,
-		subject: "Introduction to Computer Science",
+		name: "Introduction to Computer Science",
 		code: "CS101",
 		department: "Computer Science",
 		description:
@@ -17,7 +17,7 @@ const subjects: Subject[] = [
 	},
 	{
 		id: 2,
-		subject: "Calculus II",
+		name: "Calculus II",
 		code: "MATH201",
 		department: "Mathematics",
 		description:
@@ -25,7 +25,7 @@ const subjects: Subject[] = [
 	},
 	{
 		id: 3,
-		subject: "Academic Writing",
+		name: "Academic Writing",
 		code: "ENG150",
 		department: "English",
 		description:
