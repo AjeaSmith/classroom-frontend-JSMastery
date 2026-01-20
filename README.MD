@@ -1,48 +1,105 @@
-# classroom
+**IMPORTANT**: For me to truly benefit from this course, I need to understand the parts I don't. These are note I took from the **PERN** stack course by JS Mastery.
 
-<div align="center" style="margin: 30px;">
-    <a href="https://refine.dev">
-    <img alt="refine logo" src="https://refine.ams3.cdn.digitaloceanspaces.com/readme/refine-readme-banner.png">
-    </a>
-</div>
-<br/>
+## Admin dashboard created with the PERN Stack
 
-This [Refine](https://github.com/refinedev/refine) project was generated with [create refine-app](https://github.com/refinedev/refine/tree/master/packages/create-refine-app).
+## Tools used:
 
-## Getting Started
+- Refine
+- Tweakcn
+- CodeRabbit for code reviews
 
-A React Framework for building internal tools, admin panels, dashboards & B2B apps with unmatched flexibility ✨
+### Refine Notes
 
-Refine's hooks and components simplifies the development process and eliminates the repetitive tasks by providing industry-standard solutions for crucial aspects of a project, including authentication, access control, routing, networking, state management, and i18n.
+**What is Refine?**
 
-## Available Scripts
+It is a React based framework to help build Dashboards, Panels, Ecommerce site and more. It provides built-in functionality that a typical Dashbaord/panel would need. You can choose the UI framework (e.g shadcn) and the database.
 
-### Running the development server.
+**How does Refine work?**
 
-```bash
-    npm run dev
+- Refine needs a data provider, which is a function that implements the `DataProvider` interface. The methods within your data provider, calls your API.
+- Refine also provides data hooks (`useList`, `useCreate` etc.) that calls your data provider methods under the hood.
+
+**useTable from react-table**
+`useTable` is a react Tanstack table function that is collaborated with Refine to help render data from API. It comes with filtering, sorting and pagination functionalities built-in. It uses the `useList` hook under the hood to fetch data.
+
+**Explain what this code does**
+
+```js
+const departmentFilters =
+  selectedDepartment === "all"
+    ? []
+    : [
+        {
+          field: "department",
+          operator: "eq" as const,
+          value: selectedDepartment,
+        },
+      ];
 ```
 
-### Building for production.
+This creates a filter rule for the `useTable` function:
+no filters are applied if department is "all".
 
-```bash
-    npm run build
+`field`: which field to filter on → "department"
+
+`operator`: "eq" → equals
+
+`value`: the selected department (e.g. "HR", "Engineering")
+
+Meaning:
+“Only show records where department === selectedDepartment”
+
+**DataProvider**
+When creating a custom data provider, Refine requires you to implement these methods. They will be used to fetch data from API.
+
+```js
+export const dataProvider: DataProvider = {
+	getList: async () => {
+        // Fetching data implementation goes here
+	},
+    getOne: async () => {
+		// Fetch data by ID implementation goes here
+	},
+	create: async () => {
+		// creating data implementation goes here
+	},
+	update: async () => {
+		// updating data implementation goes here
+	},
+	deleteOne: async () => {
+		// deleting data implementation goes here
+	},
+    // returns API url
+	getApiUrl: () => "",
+}
 ```
 
-### Running the production server.
+### React Notes
 
-```bash
-    npm run start
+**What is Tweakcn?**
+A Website used to finely customize your shadcn theme.
+
+**How does useMemo work in React?**
+`useMemo` is a React Hook used to memoize a value so it doesn’t get recomputed on every render unless its dependencies change.
+
+For example:
+
+Without `useMemo` items are filtered on every render even if items dont change.
+```js
+function Component({ items }) {
+  const filtered = items.filter(item => item.active);
+  return <List data={filtered} />;
+}
 ```
 
-## Learn More
+with `useMemo` react caches the result of filter and will only run if items change.
 
-To learn more about **Refine**, please check out the [Documentation](https://refine.dev/docs)
+```js
+function Component({ items }) {
+	const filtered = useMemo(() => {
+		return items.filter((item) => item.active);
+	}, [items]);
 
-- **REST Data Provider** [Docs](https://refine.dev/docs/core/providers/data-provider/#overview)
-- **shadcn/ui** [Docs](https://refine.dev/docs/guides-concepts/general-concepts/#headless-concept)
-- **React Router** [Docs](https://refine.dev/docs/core/providers/router-provider/)
-
-## License
-
-MIT
+	return <List data={filtered} />;
+}
+```
