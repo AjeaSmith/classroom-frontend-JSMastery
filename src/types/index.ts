@@ -1,6 +1,6 @@
 export type Subject = {
 	id: number;
-	subject: string;
+	name: string;
 	code: string;
 	description: string;
 	department: string;
