@@ -1,57 +1,47 @@
-import { Subject } from "@/types";
-import {
-	BaseRecord,
-	DataProvider,
-	GetListParams,
-	GetListResponse,
-} from "@refinedev/core";
+import { BACKEND_BASE_URL } from "@/constants";
+import { ListResponse } from "@/types";
+import { createDataProvider, CreateDataProviderOptions } from "@refinedev/rest";
+// under the hood, these methods call our Express API endpoints
+const options: CreateDataProviderOptions = {
+	getList: {
+		getEndpoint: ({ resource }) => resource,
 
-const subjects: Subject[] = [
-	{
-		id: 1,
-		name: "Introduction to Computer Science",
-		code: "CS101",
-		department: "Computer Science",
-		description:
-			"Introduction to computer science fundamentals including algorithms, problem-solving, and basic programming concepts.",
+		buildQueryParams: async ({ pagination, filters, resource }) => {
+			const page = pagination?.currentPage ?? 1;
+			const pageSize = pagination?.pageSize ?? 10;
+
+			const params: Record<string, string | number> = {
+				page,
+				limit: pageSize,
+			};
+
+			filters?.forEach((filter) => {
+				const field = "field" in filter ? filter.field : "";
+				const value = String(filter.value);
+
+				if (resource === "subjects") {
+					if (field === "department") {
+						params.department = value;
+					}
+					if (field === "name" || field === "code") {
+						params.search = value;
+					}
+				}
+			});
+			return params;
+		},
+		// 3. Extract the data array from API response
+		mapResponse: async (response) => {
+			const payload: ListResponse = await response.json();
+			return payload.data ?? [];
+		},
+		getTotalCount: async (response) => {
+			const payload: ListResponse = await response.json();
+			return payload.pagination?.total ?? payload.data?.length ?? 0;
+		},
 	},
-	{
-		id: 2,
-		name: "Calculus II",
-		code: "MATH201",
-		department: "Mathematics",
-		description:
-			"Intermediate calculus course covering limits, derivatives, integrals, and their applications in real-world problems.",
-	},
-	{
-		id: 3,
-		name: "Academic Writing",
-		code: "ENG150",
-		department: "English",
-		description:
-			"Study of composition and critical reading with an emphasis on academic writing, argumentation, and literary analysis.",
-	},
-];
-export const dataProvider: DataProvider = {
-	getList: async <TData extends BaseRecord = BaseRecord>({
-		resource,
-	}: GetListParams): Promise<GetListResponse<TData>> => {
-		if (resource !== "subjects") {
-			return { data: [] as TData[], total: 0 };
-		}
-		return { data: subjects as unknown as TData[], total: subjects.length };
-	},
-	getOne: async () => {
-		throw new Error("This function is not present in mock");
-	},
-	create: async () => {
-		throw new Error("This function is not present in mock");
-	},
-	update: async () => {
-		throw new Error("This function is not present in mock");
-	},
-	deleteOne: async () => {
-		throw new Error("This function is not present in mock");
-	},
-	getApiUrl: () => "",
 };
+
+export const { dataProvider } = createDataProvider(BACKEND_BASE_URL, options);
+
+export default { dataProvider };

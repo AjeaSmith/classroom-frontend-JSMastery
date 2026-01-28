@@ -47,8 +47,8 @@ function App() {
 									meta: { label: "Home", icon: <Home /> },
 								},
 								{
-									name: "department",
-									list: "/department",
+									name: "departments",
+									list: "/departments",
 									meta: { label: "Departments", icon: <Newspaper /> },
 								},
 								{
