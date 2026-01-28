@@ -11,8 +11,8 @@ import {
 	SelectTrigger,
 	SelectValue,
 } from "@/components/ui/select";
-import { DEPARTMENT_OPTIONS } from "@/constants";
 import { Subject } from "@/types";
+import { useList } from "@refinedev/core";
 import { useTable } from "@refinedev/react-table";
 import { ColumnDef } from "@tanstack/react-table";
 
@@ -56,7 +56,7 @@ const SubjectsList = () => {
 					id: "name",
 					accessorKey: "name",
 					size: 200,
-					header: () => <p className="column-title">Subject</p>,
+					header: () => <p className="column-title">Name</p>,
 					cell: ({ getValue }) => (
 						<span className="text-foreground">{getValue<string>()}</span>
 					),
@@ -64,7 +64,7 @@ const SubjectsList = () => {
 				},
 				{
 					id: "department",
-					accessorKey: "department",
+					accessorKey: "department.name",
 					size: 150,
 					header: () => <p className="column-title">Department</p>,
 					cell: ({ getValue }) => (
@@ -91,6 +91,12 @@ const SubjectsList = () => {
 			sorters: { initial: [{ field: "id", order: "desc" }] },
 		},
 	});
+
+	// ADDED: I made a API for departments '/api/departments' useList will use getList under the hood to call API. This will return all the departments for dropdown.
+	const { result: departments } = useList({
+		resource: "departments",
+	});
+
 	return (
 		<ListView>
 			<Breadcrumb />
@@ -116,15 +122,15 @@ const SubjectsList = () => {
 							value={selectedDepartment}
 							onValueChange={setselectedDepartment}
 						>
-							<SelectTrigger className="">
+							<SelectTrigger>
 								<SelectValue placeholder="Filter by department" />
 							</SelectTrigger>
 
 							<SelectContent>
 								<SelectItem value="all">All Departments</SelectItem>
-								{DEPARTMENT_OPTIONS.map((department) => (
-									<SelectItem key={department.value} value={department.value}>
-										{department.label}
+								{departments.data.map((department) => (
+									<SelectItem key={department.id} value={department.name}>
+										{department.name}
 									</SelectItem>
 								))}
 							</SelectContent>

@@ -55,9 +55,9 @@ When creating a custom data provider, Refine requires you to implement these met
 ```js
 export const dataProvider: DataProvider = {
 	getList: async () => {
-        // Fetching data implementation goes here
+		// Fetching data implementation goes here
 	},
-    getOne: async () => {
+	getOne: async () => {
 		// Fetch data by ID implementation goes here
 	},
 	create: async () => {
@@ -69,9 +69,76 @@ export const dataProvider: DataProvider = {
 	deleteOne: async () => {
 		// deleting data implementation goes here
 	},
-    // returns API url
+	// returns API url
 	getApiUrl: () => "",
+};
+```
+
+**Building query params**
+This function converts pagination and filter state from Refine UI into a clean query object the backend can understand / use for API request.
+
+It turns pagination and filters into an onject like this -->
+
+```json
+{
+	"page": 1,
+	"limit": 10,
+	"department": "MATH",
+	"search": "calc"
 }
+```
+
+This code sets the default page and pageSize for pagination. If pagination exist use its value, else it defaults to 1 for page and 10 for pageSize.
+
+```js
+const page = pagination?.currentPage ?? 1;
+const pageSize = pagination?.pageSize ?? 10;
+```
+
+This is the formatted params obj that will be sent to API. Filters will be added to it later.
+
+```js
+const params: Record<string, string | number> = {
+	page,
+	limit: pageSize,
+};
+```
+
+This code loops through filters and gets `field` and `value` (e.g `field: 'department', value: 'Mathematics'`). This filter only applies if the resource is `subjects`.
+
+```js
+filters?.forEach((filter) => {
+	const field = "field" in filter ? filter.field : "";
+	const value = String(filter.value);
+
+	if (resource === "subjects") {
+		if (field === "department") {
+			params.department = value;
+		}
+		if (field === "name" || field === "code") {
+			params.search = value;
+		}
+	}
+});
+```
+
+The filter gets added to `params` obj, it will look like this in the end.
+
+```json
+{
+	"page": 2,
+	"limit": 5,
+	"department": "MATH",
+	"search": "calc"
+}
+```
+
+I made a API for departments `/api/departments` `useList` will use `getList` under the hood to call API. This will return all the departments for dropdown menu in subjects list page.
+
+```js
+const { result: departments } = useList({
+	resource: "departments",
+});
 ```
 
 ### React Notes
@@ -85,10 +152,11 @@ A Website used to finely customize your shadcn theme.
 For example:
 
 Without `useMemo` items are filtered on every render even if items dont change.
+
 ```js
 function Component({ items }) {
-  const filtered = items.filter(item => item.active);
-  return <List data={filtered} />;
+	const filtered = items.filter((item) => item.active);
+	return <List data={filtered} />;
 }
 ```
 
@@ -103,3 +171,6 @@ function Component({ items }) {
 	return <List data={filtered} />;
 }
 ```
+
+**Types**
+The types defined in `/types` describe's what type of data will be returned. We use them throughout the frontend.
